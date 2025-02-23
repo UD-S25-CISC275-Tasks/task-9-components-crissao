@@ -133,7 +133,14 @@ export function toCSV(questions: Question[]): string {
  * making the `text` an empty string, and using false for both `submitted` and `correct`.
  */
 export function makeAnswers(questions: Question[]): Answer[] {
-    const answers = questions.map((question: Question): Answer => ({questionId: question.id, text: "", submitted: false, correct: false}));
+    const answers = questions.map(
+        (question: Question): Answer => ({
+            questionId: question.id,
+            text: "",
+            submitted: false,
+            correct: false,
+        }),
+    );
     return answers;
 }
 
@@ -142,7 +149,14 @@ export function makeAnswers(questions: Question[]): Answer[] {
  * each question is now published, regardless of its previous published status.
  */
 export function publishAll(questions: Question[]): Question[] {
-    return [];
+    const published = questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options: [...question.options],
+            published: true,
+        }),
+    );
+    return published;
 }
 
 /***
@@ -150,6 +164,17 @@ export function publishAll(questions: Question[]): Question[] {
  * are the same type. They can be any type, as long as they are all the SAME type.
  */
 export function sameType(questions: Question[]): boolean {
+    const filtered = questions
+        .filter((question: Question): boolean => question.type === "multiple_choice_question")
+        .map(
+            (question: Question): Question => ({
+                ...question,
+                options: [...question.options],
+            }),
+        );
+    if (filtered.length === questions.length || filtered.length === 0){
+        return true;
+    }
     return false;
 }
 
