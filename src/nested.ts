@@ -56,7 +56,15 @@ export function findQuestion(
  * with the given `id`.
  */
 export function removeQuestion(questions: Question[], id: number): Question[] {
-    return [];
+    const filtered = questions.filter(
+        (question: Question): boolean => question.id !== id)
+        .map(
+            (question: Question): Question => ({
+                ...question,
+                options: [...question.options],
+            }),
+        );
+    return filtered;
 }
 
 /***
@@ -64,7 +72,8 @@ export function removeQuestion(questions: Question[], id: number): Question[] {
  * questions, as an array.
  */
 export function getNames(questions: Question[]): string[] {
-    return [];
+    const names = questions.map((question: Question): string => question.name);
+    return names;
 }
 
 /***
