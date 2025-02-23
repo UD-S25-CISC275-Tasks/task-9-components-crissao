@@ -1,7 +1,7 @@
 import Q from "q";
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
-import { makeBlankQuestion } from "./objects";
+import { makeBlankQuestion, duplicateQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
@@ -87,8 +87,13 @@ export function getNames(questions: Question[]): string[] {
  * Consumes an array of questions and returns the sum total of all their points added together.
  */
 export function sumPoints(questions: Question[]): number {
-    const points = questions.map((question: Question): number => question.points);
-    const total = points.reduce((sum: number, point: number): number => sum + point, 0);
+    const points = questions.map(
+        (question: Question): number => question.points,
+    );
+    const total = points.reduce(
+        (sum: number, point: number): number => sum + point,
+        0,
+    );
     return total;
 }
 
@@ -166,14 +171,17 @@ export function publishAll(questions: Question[]): Question[] {
  */
 export function sameType(questions: Question[]): boolean {
     const filtered = questions
-        .filter((question: Question): boolean => question.type === "multiple_choice_question")
+        .filter(
+            (question: Question): boolean =>
+                question.type === "multiple_choice_question",
+        )
         .map(
             (question: Question): Question => ({
                 ...question,
                 options: [...question.options],
             }),
         );
-    if (filtered.length === questions.length || filtered.length === 0){
+    if (filtered.length === questions.length || filtered.length === 0) {
         return true;
     }
     return false;
@@ -191,13 +199,15 @@ export function addNewQuestion(
     type: QuestionType,
 ): Question[] {
     const new_question = makeBlankQuestion(id, name, type);
-    const copy = [...questions.map(
-        (question: Question): Question => ({
-            ...question,
-            options: [...question.options],
-        }),
-    ),
-    new_question];
+    const copy = [
+        ...questions.map(
+            (question: Question): Question => ({
+                ...question,
+                options: [...question.options],
+            }),
+        ),
+        new_question,
+    ];
     return copy;
 }
 
@@ -211,15 +221,19 @@ export function renameQuestionById(
     targetId: number,
     newName: string,
 ): Question[] {
-    const renamed = questions.map((question: Question): Question => targetId !== question.id ? ({
-        ...question,
-        options: [...question.options]
-    }) : ({
-        ...question,
-        name: newName,
-        options: [...question.options]
-    })
-    )
+    const renamed = questions.map(
+        (question: Question): Question =>
+            targetId !== question.id ?
+                {
+                    ...question,
+                    options: [...question.options],
+                }
+            :   {
+                    ...question,
+                    name: newName,
+                    options: [...question.options],
+                },
+    );
     return renamed;
 }
 
@@ -235,7 +249,27 @@ export function changeQuestionTypeById(
     targetId: number,
     newQuestionType: QuestionType,
 ): Question[] {
-    return [];
+    const new_type = questions.map((question: Question): Question => {
+        if (targetId !== question.id) {
+            return {
+                ...question,
+                options: [...question.options],
+            };
+        } else if (newQuestionType === "short_answer_question") {
+            return {
+                ...question,
+                type: newQuestionType,
+                options: [],
+            };
+        } else {
+            return {
+                ...question,
+                type: newQuestionType,
+                options: [...question.options],
+            };
+        }
+    });
+    return new_type;
 }
 
 /**
@@ -248,13 +282,50 @@ export function changeQuestionTypeById(
  * Remember, if a function starts getting too complicated, think about how a helper function
  * can make it simpler! Break down complicated tasks into little pieces.
  */
+function addNewOption(
+    options: string[],
+    newOption: string,
+    index: number,
+): string[] {
+    const new_options = [...options];
+    if (index >= 0 && index < options.length) {
+        new_options[index] = newOption; 
+    } else {
+        new_options.push(newOption); 
+    }
+    return new_options;
+}
+
 export function editOption(
     questions: Question[],
     targetId: number,
     targetOptionIndex: number,
     newOption: string,
 ): Question[] {
-    return [];
+    const new_option = questions.map((question: Question): Question => {
+        if (targetId !== question.id) {
+            return {
+                ...question,
+                options: [...question.options],
+            };
+        } else if (targetOptionIndex === -1) {
+            return {
+                ...question,
+                options: [...question.options, newOption],
+            };
+        } else {
+            const new_options = addNewOption(
+                question.options,
+                newOption,
+                targetOptionIndex,
+            );
+            return {
+                ...question,
+                options: new_options,
+            };
+        }
+    });
+    return new_option;
 }
 
 /***
@@ -268,5 +339,22 @@ export function duplicateQuestionInArray(
     targetId: number,
     newId: number,
 ): Question[] {
-    return [];
+    const found = questions.find(
+        (question: Question): boolean => question.id === targetId,
+    );
+    const index = questions.findIndex(
+        (question: Question): boolean => question.id === targetId,
+    );
+    const new_questions = questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options: [...question.options],
+        }),
+    );
+    if (found === undefined) {
+        return new_questions
+    }
+    const duplicate = duplicateQuestion(newId, found);
+    new_questions.splice(index + 1, 0, duplicate);
+    return new_questions;
 }
