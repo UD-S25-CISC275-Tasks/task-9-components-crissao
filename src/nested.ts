@@ -1,6 +1,7 @@
 import Q from "q";
 import { Answer } from "./interfaces/answer";
 import { Question, QuestionType } from "./interfaces/question";
+import { makeBlankQuestion } from "./objects";
 
 /**
  * Consumes an array of questions and returns a new array with only the questions
@@ -189,7 +190,15 @@ export function addNewQuestion(
     name: string,
     type: QuestionType,
 ): Question[] {
-    return [];
+    const new_question = makeBlankQuestion(id, name, type);
+    const copy = [...questions.map(
+        (question: Question): Question => ({
+            ...question,
+            options: [...question.options],
+        }),
+    ),
+    new_question];
+    return copy;
 }
 
 /***
@@ -202,7 +211,16 @@ export function renameQuestionById(
     targetId: number,
     newName: string,
 ): Question[] {
-    return [];
+    const renamed = questions.map((question: Question): Question => targetId !== question.id ? ({
+        ...question,
+        options: [...question.options]
+    }) : ({
+        ...question,
+        name: newName,
+        options: [...question.options]
+    })
+    )
+    return renamed;
 }
 
 /***
