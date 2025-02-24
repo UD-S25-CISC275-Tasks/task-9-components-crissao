@@ -96,7 +96,11 @@ ${body}${options}`;
  * `newName`.
  */
 export function renameQuestion(question: Question, newName: string): Question {
-    const new_question = { ...question, name: newName };
+    const new_question = {
+        ...question,
+        name: newName,
+        options: [...question.options],
+    };
     return new_question;
 }
 
@@ -106,7 +110,11 @@ export function renameQuestion(question: Question, newName: string): Question {
  * published; if it was published, now it should be not published.
  */
 export function publishQuestion(question: Question): Question {
-    const new_question = { ...question, published: !question.published };
+    const new_question = {
+        ...question,
+        published: !question.published,
+        options: [...question.options],
+    };
     return new_question;
 }
 
@@ -122,6 +130,7 @@ export function duplicateQuestion(id: number, oldQuestion: Question): Question {
         id: id,
         name: `Copy of ${oldQuestion.name}`,
         published: false,
+        options: [...oldQuestion.options],
     };
     return new_question;
 }
@@ -161,6 +170,7 @@ export function mergeQuestion(
         id: id,
         published: false,
         points: points,
+        options: [...contentQuestion.options],
     };
     return new_question;
 }
