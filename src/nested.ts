@@ -288,11 +288,10 @@ function addNewOption(
 ): string[] {
     const new_options = [...options];
     if (index >= 0 && index < options.length) {
-        new_options[index] = newOption; 
-    } else {
-        new_options.push(newOption); 
+        new_options[index] = newOption;
+        return new_options;
     }
-    return new_options;
+    return [...new_options, newOption];
 }
 
 export function editOption(
