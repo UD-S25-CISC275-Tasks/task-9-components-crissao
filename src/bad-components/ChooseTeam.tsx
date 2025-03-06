@@ -18,10 +18,12 @@ export function ChooseTeam(): React.JSX.Element {
         if (!team.includes(option)) {
             setTeam([...team, option]);
         }
+        setAllOptions([...allOptions])
     }
 
     function clearTeam() {
         setTeam([]);
+        setAllOptions([...allOptions]);
     }
 
     return (
